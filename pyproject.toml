@@ -1,7 +1,7 @@
 [project]
 name = "web-robot-control"
 version = "0.1.0"
-description = "Web-robot-control - веб-приложение для управлением роботом и трансляции видео с веб-камеры."
+description = "Web-robot-control - open source веб-приложение для управлением роботом и трансляции видео с веб-камеры."
 authors = [
     {name = "Arduinum628",email = "message.chaos628@gmail.com"}
 ]
