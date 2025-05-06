@@ -6,7 +6,8 @@
 
 **Запуск для локальной разработки**: `poetry run uvicorn web_robot_control.main:app --host server_ip
  --port port_number`
-# Todo: создать Python-функцию для запуска веб-приложения и добавить её в скрипты Poetry
+
+**Todo:** создать Python-функцию для запуска веб-приложения и добавить её в скрипты Poetry
 
 <details>
 	<summary>
