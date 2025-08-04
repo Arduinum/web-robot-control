@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 from websockets import exceptions, connect
 import asyncio
 import socket
+from json import loads, JSONDecodeError
 
 from web_robot_control.settings import settings
 
@@ -59,25 +60,37 @@ async def command_to_robot(command: str) -> str:
 
 @router.websocket('/ws')
 async def websocket_endpoint(websocket: WebSocket) -> None:
+    """Эндпоинт для обработки команд фронтенда"""
+    
     # Установка содединения по веб-сокету
     await websocket.accept()
     
     try:
+        previous_command = None
+        
         while True:
             # Получение команды от клиента (с веб-сокета)
             command = await websocket.receive_text()
-            valid_commands = settings.commands_robot.get_list_commands()
+         
+            if previous_command != command:
+                previous_command = command
+                valid_commands = settings.commands_robot.get_list_commands()
+                data = loads(command)
+                name_command = next(iter(data), None)
 
-            if command in valid_commands:
-                # оптравка команды роботу
-                robot_answer = await command_to_robot(command=command)
-                
-                if robot_answer:
-                    # отправка ответа робота на вебсокет фронтенда
-                    await websocket.send_text(f'Получена команда: {command}, ответ робота: {robot_answer}')
-                    print(f'Ответ робота: {robot_answer}')
+                if name_command in valid_commands:
+                    print(command)
+                    # оптравка команды роботу
+                    robot_answer = await command_to_robot(command=command)
+                    
+                    if robot_answer:
+                        # отправка ответа робота на вебсокет фронтенда
+                        await websocket.send_text(f'Получена команда: {command}, ответ робота: {robot_answer}')
+                        print(f'Ответ робота: {robot_answer}')
     except WebSocketDisconnect:
         print('WebSocket отключен')  # Todo: для вывода ошибок будет настроен logger
     # Todo: для каждой ошибки написать своё сообщение
     except (WebSocketException, exceptions.InvalidMessage) as err:
         print(f'{err.__class__.__name__}: {err}')
+    except JSONDecodeError:
+        print('Ошибка при декодировании JSON')

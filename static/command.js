@@ -39,12 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Функция для начала отправки команды с заданным интервалом
     function startSendingCommand(command) {
         // Отправляем команду сразу
-        sendCommand(command);
+        sendCommand(JSON.stringify(command));
 
         // Запускаем интервал для повторной отправки команды
         commandInterval = setInterval(() => {
-            sendCommand(command); // Повторяем отправку команды
-        }, 10); // Интервал отправки — каждые 10 мс
+            sendCommand(JSON.stringify(command)); // Повторяем отправку команды
+        }, 10); // Интервал отправки — каждые 100 мс
     }
 
     // Функция для остановки отправки команд
@@ -65,8 +65,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Назначение обработчиков событий для кнопки "Вперёд"
     const forwardButton = document.getElementById("forward-button");
-    forwardButton.addEventListener("mousedown", () => startSendingCommand("forward")); // Начало отправки команды
-    forwardButton.addEventListener("mouseup", stopSendingCommand); // Остановка отправки при отпускании кнопки
+    const forwardOn = {"forward": true}
+    forwardButton.addEventListener("mousedown", () => startSendingCommand(forwardOn)); // Начало отправки команды
+    const forwardOff = {"forward": false}
+    forwardButton.addEventListener("mouseup", () => {
+        sendCommand(JSON.stringify(forwardOff));
+        stopSendingCommand();
+    }); // отправка команды forwardOff и остановка отправки при отпускании кнопки
     forwardButton.addEventListener("mouseleave", stopSendingCommand); // Остановка отправки, если курсор уходит с кнопки
 
     // Назначение обработчиков событий для кнопки "Влево"
