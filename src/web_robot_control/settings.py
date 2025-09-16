@@ -18,6 +18,7 @@ class CommandsRobot(ModelConfig):
     backward: str
     left: str
     right: str
+    stop: str
 
     def get_list_commands(self):
         """Метод вернёт список всех команд"""

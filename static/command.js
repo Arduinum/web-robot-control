@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Обработчик события открытия WebSocket-соединения
     ws.onopen = function() {
-        console.log("WebSocket подключен");
+        console.log("WebSocket клиента подключен");
     };
 
     // Обработчик события получения сообщения по WebSocket
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Обработчик события закрытия WebSocket-соединения
     ws.onclose = function() {
-        console.log("WebSocket закрыт");
+        console.log("WebSocket клиента закрыт");
     };
 
     // Обработчик ошибок WebSocket
@@ -59,36 +59,45 @@ document.addEventListener("DOMContentLoaded", () => {
             ws.send(command); // Отправляем команду через WebSocket
             console.log("Команда:", command); // Логируем отправленную команду
         } else {
-            console.log("WebSocket не подключён"); // Если WebSocket не открыт
+            console.log("WebSocket клиента не подключён"); // Если WebSocket не открыт
         }
     }
 
+    const commandStop = {"command": "stop"};
+
     // Назначение обработчиков событий для кнопки "Вперёд"
     const forwardButton = document.getElementById("forward-button");
-    const forwardOn = {"forward": true}
-    forwardButton.addEventListener("mousedown", () => startSendingCommand(forwardOn)); // Начало отправки команды
-    const forwardOff = {"forward": false}
+    forwardButton.addEventListener("mousedown", () => startSendingCommand({"command": "forward"})); // Начало отправки команды
     forwardButton.addEventListener("mouseup", () => {
-        sendCommand(JSON.stringify(forwardOff));
+        sendCommand(JSON.stringify(commandStop));
         stopSendingCommand();
     }); // отправка команды forwardOff и остановка отправки при отпускании кнопки
     forwardButton.addEventListener("mouseleave", stopSendingCommand); // Остановка отправки, если курсор уходит с кнопки
 
     // Назначение обработчиков событий для кнопки "Влево"
     const leftButton = document.getElementById("left-button");
-    leftButton.addEventListener("mousedown", () => startSendingCommand("left"));
-    leftButton.addEventListener("mouseup", stopSendingCommand);
+    leftButton.addEventListener("mousedown", () => startSendingCommand({"command": "left"}));
+    leftButton.addEventListener("mouseup", () => {
+        sendCommand(JSON.stringify(commandStop));
+        stopSendingCommand();
+    });
     leftButton.addEventListener("mouseleave", stopSendingCommand);
 
     // Назначение обработчиков событий для кнопки "Вправо"
     const rightButton = document.getElementById("right-button");
-    rightButton.addEventListener("mousedown", () => startSendingCommand("right"));
-    rightButton.addEventListener("mouseup", stopSendingCommand);
+    rightButton.addEventListener("mousedown", () => startSendingCommand({"command": "right"}));
+    rightButton.addEventListener("mouseup", () => {
+        sendCommand(JSON.stringify(commandStop));
+        stopSendingCommand();
+    });
     rightButton.addEventListener("mouseleave", stopSendingCommand);
 
     // Назначение обработчиков событий для кнопки "Назад"
     const backwardButton = document.getElementById("backward-button");
-    backwardButton.addEventListener("mousedown", () => startSendingCommand("backward"));
-    backwardButton.addEventListener("mouseup", stopSendingCommand);
+    backwardButton.addEventListener("mousedown", () => startSendingCommand({"command": "backward"}));
+    backwardButton.addEventListener("mouseup", () => {
+        sendCommand(JSON.stringify(commandStop));
+        stopSendingCommand();
+    });
     backwardButton.addEventListener("mouseleave", stopSendingCommand);
 });
