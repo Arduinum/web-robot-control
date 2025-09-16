@@ -70,26 +70,23 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
         
         while True:
             # Получение команды от клиента (с веб-сокета)
-            command = await websocket.receive_text()
-         
+            response = await websocket.receive_text()
+            data = loads(response)
+            command = data.get('command')
+
             if previous_command != command:
                 previous_command = command
                 valid_commands = settings.commands_robot.get_list_commands()
-                data = loads(command)
-                name_command = next(iter(data), None)
-
-                if name_command in valid_commands:
-                    print(command)
+                
+                if command in valid_commands:
                     # оптравка команды роботу
-                    robot_answer = await command_to_robot(command=command)
+                    robot_answer = await command_to_robot(command=response)
                     
                     if robot_answer:
                         # отправка ответа робота на вебсокет фронтенда
                         await websocket.send_text(f'Получена команда: {command}, ответ робота: {robot_answer}')
-                        print(f'Ответ робота: {robot_answer}')
     except WebSocketDisconnect:
-        print('WebSocket отключен')  # Todo: для вывода ошибок будет настроен logger
-    # Todo: для каждой ошибки написать своё сообщение
+        print('WebSocket отключен')
     except (WebSocketException, exceptions.InvalidMessage) as err:
         print(f'{err.__class__.__name__}: {err}')
     except JSONDecodeError:
