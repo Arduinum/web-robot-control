@@ -63,41 +63,88 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    const commandStop = {"command": "stop"};
+    // Команда остановки
+    const commandStop = { "command": "stop" };
 
-    // Назначение обработчиков событий для кнопки "Вперёд"
-    const forwardButton = document.getElementById("forward-button");
-    forwardButton.addEventListener("mousedown", () => startSendingCommand({"command": "forward"})); // Начало отправки команды
-    forwardButton.addEventListener("mouseup", () => {
-        sendCommand(JSON.stringify(commandStop));
-        stopSendingCommand();
-    }); // отправка команды forwardOff и остановка отправки при отпускании кнопки
-    forwardButton.addEventListener("mouseleave", stopSendingCommand); // Остановка отправки, если курсор уходит с кнопки
+    let command = null;
+    let currentCommand = null;
 
-    // Назначение обработчиков событий для кнопки "Влево"
-    const leftButton = document.getElementById("left-button");
-    leftButton.addEventListener("mousedown", () => startSendingCommand({"command": "left"}));
-    leftButton.addEventListener("mouseup", () => {
-        sendCommand(JSON.stringify(commandStop));
-        stopSendingCommand();
+    // Управление кнопками мыши
+    function robotControlButton(buttonId, commandName) {
+        const button = document.getElementById(buttonId);
+        if (!button) return;
+
+        button.addEventListener("mousedown", () => {
+            if (currentCommand !== commandName) {
+                currentCommand = commandName;
+                startSendingCommand({command: commandName});
+            }
+        });
+
+        const stopHandler = () => {
+            if (currentCommand === commandName) {
+                sendCommand(JSON.stringify(commandStop));
+                stopSendingCommand();
+                currentCommand = null;
+            }
+        };
+
+        button.addEventListener("mouseup", stopHandler);
+        button.addEventListener("mouseleave", stopHandler);
+    }
+
+    // Инициализация кнопок
+    robotControlButton("forward-button", "forward");
+    robotControlButton("backward-button", "backward");
+    robotControlButton("left-button", "left");
+    robotControlButton("right-button", "right");
+
+    const keyMap = {
+        forwardKeys: ["w", "arrowup", "8"],
+        backwardKeys: ["s", "arrowdown", "2"],
+        leftKeys: ["a", "arrowleft", "4"],
+        rightKeys: ["d", "arrowright", "6"]
+    };
+
+    let activeKey = null; // конкретная активная клавиша
+
+    document.addEventListener("keydown", (event) => {
+        const key = event.key.toLowerCase();
+
+        // если уже нажата какая-то клавиша — игнорируем новую
+        if (activeKey) return;
+
+        if (keyMap.forwardKeys.includes(key)) {
+            command = "forward";
+        } else if (keyMap.backwardKeys.includes(key)) {
+            command = "backward";
+        } else if (keyMap.leftKeys.includes(key)) {
+            command = "left";
+        } else if (keyMap.rightKeys.includes(key)) {
+            command = "right";
+        } else {
+            return; // неуправляющая клавиша
+        }
+
+        if (command !== currentCommand) {
+            activeKey = key; // запоминаем, какая клавиша активна
+            currentCommand = command;
+
+            startSendingCommand({ "command": command });
+        }
     });
-    leftButton.addEventListener("mouseleave", stopSendingCommand);
 
-    // Назначение обработчиков событий для кнопки "Вправо"
-    const rightButton = document.getElementById("right-button");
-    rightButton.addEventListener("mousedown", () => startSendingCommand({"command": "right"}));
-    rightButton.addEventListener("mouseup", () => {
-        sendCommand(JSON.stringify(commandStop));
-        stopSendingCommand();
-    });
-    rightButton.addEventListener("mouseleave", stopSendingCommand);
+    document.addEventListener("keyup", (event) => {
+        const key = event.key.toLowerCase();
 
-    // Назначение обработчиков событий для кнопки "Назад"
-    const backwardButton = document.getElementById("backward-button");
-    backwardButton.addEventListener("mousedown", () => startSendingCommand({"command": "backward"}));
-    backwardButton.addEventListener("mouseup", () => {
-        sendCommand(JSON.stringify(commandStop));
-        stopSendingCommand();
+        // сработает стоп только если отпущена именно активная клавиша
+        if (key === activeKey) {
+            sendCommand(JSON.stringify(commandStop));
+            stopSendingCommand();
+
+            activeKey = null;
+            command = null;
+            currentCommand = null;
+        }
     });
-    backwardButton.addEventListener("mouseleave", stopSendingCommand);
 });
