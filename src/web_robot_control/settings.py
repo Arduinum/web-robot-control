@@ -31,6 +31,9 @@ class Settings(ModelConfig):
 
     stream_url: str
     websocket_url_robot: str
+    port_app: int
+    host_app: str
+    is_reload: bool
     commands_robot: CommandsRobot = CommandsRobot()
 
 
