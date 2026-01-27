@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    image: arduinum628/web-robot-control-app:latest
+    container_name: web_robot_control
+    command: poetry run start_app
+    env_file:
+      - .env
+    ports:
+     - "${PORT_APP}:${PORT_APP}"
+    volumes:
+     - app:/app
+
+volumes:
+  app:
